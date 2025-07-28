@@ -1,0 +1,57 @@
+name: Docker Compose Linter
+
+on:
+  # workflow_dispatch:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - reopened
+    branches:
+      - 'main'
+    paths:
+      - 'Docker-compose.yml'
+
+permissions: 
+  pull-requests: write 
+
+jobs:
+  linter-job:
+    runs-on: ubuntu-latest
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - run: pwd
+
+      - run: ls
+
+      - name: dclint
+        uses: docker-compose-linter/dclint-github-action/reviewdog-action@v1.4.1
+        with:
+          reporter: github-pr-review # Default is `github-pr-check`
+          dclint_flags: ./Docker-compose.yml # Default is `.`
+          filter_mode: file
+
+      # - id: docker-compose-linter
+      #   uses: docker-compose-linter/dclint-github-action@v1.4.1
+      #   with:
+      #     path: ./Docker-compose.yml
+      #     recursive: true
+      #     max-warnings: 1000
+      #     fix: true
+
+      # - name: Log the changelog to Discord
+      #   if: always()
+      #   uses: tsickert/discord-webhook@v7.0.0
+      #   with:
+      #     webhook-url: ${{ secrets.DC_LINTER_DISCORD_WEBHOOK_URL }}
+      #     # content: ${{ steps.docker-compose-linter.outputs.GITHUB }}
+      #     filename: ./Docker-compose.yml
+
+      # - name: PR comment with file
+      #   if: always()
+      #   uses: thollander/actions-comment-pull-request@v3
+      #   with:
+      #     file-path: ./Docker-compose.yml
+      #     # message: "Suggested fixes for the compose file are here:"
